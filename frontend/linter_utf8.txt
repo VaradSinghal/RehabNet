@@ -1,0 +1,41 @@
+﻿Analyzing frontend...                                           
+
+   info - Dangling library doc comment - lib\main.dart:1:1 - dangling_library_doc_comments
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\main.dart:48:11 - deprecated_member_use
+   info - Dangling library doc comment - lib\screens\ar_exercise_screen.dart:1:1 - dangling_library_doc_comments
+warning - Unused import: 'package:flutter_animate/flutter_animate.dart' - lib\screens\ar_exercise_screen.dart:13:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\ar_exercise_screen.dart:266:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\ar_exercise_screen.dart:268:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\ar_exercise_screen.dart:279:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\ar_exercise_screen.dart:304:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\ar_exercise_screen.dart:360:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\ar_exercise_screen.dart:362:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\ar_exercise_screen.dart:397:70 - deprecated_member_use
+   info - Dangling library doc comment - lib\screens\dashboard_screen.dart:1:1 - dangling_library_doc_comments
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\dashboard_screen.dart:130:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\dashboard_screen.dart:131:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\dashboard_screen.dart:180:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\dashboard_screen.dart:271:48 - deprecated_member_use
+   info - Dangling library doc comment - lib\screens\tremor_monitor_screen.dart:1:1 - dangling_library_doc_comments
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\tremor_monitor_screen.dart:67:69 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\tremor_monitor_screen.dart:224:56 - deprecated_member_use
+   info - Dangling library doc comment - lib\screens\vr_hand_screen.dart:1:1 - dangling_library_doc_comments
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\vr_hand_screen.dart:143:72 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\vr_hand_screen.dart:159:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\vr_hand_screen.dart:191:69 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\vr_hand_screen.dart:194:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\vr_hand_screen.dart:232:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\vr_hand_screen.dart:246:53 - deprecated_member_use
+   info - Dangling library doc comment - lib\services\session_service.dart:1:1 - dangling_library_doc_comments
+   info - Dangling library doc comment - lib\services\socket_service.dart:1:1 - dangling_library_doc_comments
+   info - Don't invoke 'print' in production code - lib\services\socket_service.dart:59:30 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\socket_service.dart:60:33 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\socket_service.dart:67:30 - avoid_print
+   info - Dangling library doc comment - lib\widgets\feedback_banner.dart:1:1 - dangling_library_doc_comments
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\feedback_banner.dart:27:22 - deprecated_member_use
+   info - Dangling library doc comment - lib\widgets\severity_badge.dart:1:1 - dangling_library_doc_comments
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\severity_badge.dart:26:20 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\severity_badge.dart:30:37 - deprecated_member_use
+  error - The name 'MyApp' isn't a class - test\widget_test.dart:16:35 - creation_with_non_type
+
+

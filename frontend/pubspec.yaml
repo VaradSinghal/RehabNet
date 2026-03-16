@@ -1,0 +1,43 @@
+name: frontend
+description: "RehabNet – Parkinson's Rehabilitation Assistant"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Networking & real-time
+  socket_io_client: ^3.0.0
+  http: ^1.2.2
+
+  # Camera & pose detection
+  camera: ^0.11.0+2
+  google_mlkit_pose_detection: ^0.12.0
+
+  # Charts & gauges
+  fl_chart: ^0.69.0
+
+  # State management
+  provider: ^6.1.2
+
+  # Audio cues (VR mode metronome)
+  audioplayers: ^6.1.0
+
+  # Animations
+  flutter_animate: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/audio/beep.wav

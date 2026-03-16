@@ -80,6 +80,36 @@ def get_metrics():
 
 
 # ---------------------------------------------------------------------------
+# Hardware Endpoint (Real ESP32)
+# ---------------------------------------------------------------------------
+@app.route("/api/sensor/data", methods=["POST"])
+def receive_sensor_data():
+    """
+    Receives JSON payloads from the physical ESP32.
+    Expected format: {"accelerometer_x": 0.05, "accelerometer_y": 0.01, "accelerometer_z": 0.98}
+    """
+    data = request.json
+    if not data or "accelerometer_x" not in data:
+        return jsonify({"error": "Invalid format"}), 400
+        
+    # Feed into tremor analyser
+    tremor_analyzer.add_sample(
+        data["accelerometer_x"],
+        data["accelerometer_y"],
+        data["accelerometer_z"],
+    )
+    analysis = tremor_analyzer.analyse()
+
+    # Record into session
+    session.record_tremor(analysis["severity_score"], analysis["severity_label"])
+
+    # Broadcast to Flutter via Socket.IO
+    payload = {**data, **analysis}
+    socketio.emit("tremor_data", payload, namespace="/sensor")
+    
+    return jsonify({"status": "received"}), 200
+
+# ---------------------------------------------------------------------------
 # SocketIO – Pose Analysis Namespace (/pose)
 # ---------------------------------------------------------------------------
 @socketio.on("landmarks", namespace="/pose")
@@ -123,11 +153,17 @@ def _push_metrics():
 
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    esp32.start()
-    print("ESP32 simulator started")
+    # ONLY enable this if you want fake data. Now that we have real hardware, it's disabled.
+    # esp32.start()
+    # print("ESP32 simulator started")
 
     socketio.start_background_task(_push_metrics)
     print("Metrics pusher started")
 
-    print("RehabNet backend running on http://0.0.0.0:5000")
+    print("\n-----------------------------------------------------------")
+    print("REHAB-NET BACKEND")
+    print("Listening for physical ESP32 POST requests on: /api/sensor/data")
+    print("Running on http://0.0.0.0:5000")
+    print("-----------------------------------------------------------\n")
+    
     socketio.run(app, host="0.0.0.0", port=5000, debug=False)

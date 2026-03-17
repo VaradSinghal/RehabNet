@@ -56,7 +56,8 @@ class SessionService extends ChangeNotifier {
 
     // Use num to safely handle both int (e.g. 0) and double from JSON
     tremorFreqHz = (d['frequency_hz'] as num?)?.toDouble() ?? 0.0;
-    tremorScore  = (d['amplitude']    as num?)?.toDouble() ?? 0.0;
+    final rawAmp = (d['amplitude'] as num?)?.toDouble() ?? 0.0;
+    tremorScore  = (rawAmp * 100.0).clamp(0.0, 100.0);
     tremorLabel  = d['severity']      as String? ?? 'Low';
     accelX       = (d['accelerometer_x'] as num?)?.toDouble() ?? 0.0;
     accelY       = (d['accelerometer_y'] as num?)?.toDouble() ?? 0.0;

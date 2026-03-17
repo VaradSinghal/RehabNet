@@ -73,10 +73,10 @@ class TremorDetector:
             if rms_amplitude > 0.4:
                 severity = "High"
             elif rms_amplitude > 0.15:
-                severity = "Medium"
+                severity = "Moderate"
         else:
             if rms_amplitude > 0.6: # High generalized motion
-                severity = "Medium"
+                severity = "Moderate"
 
         return {
             "frequency_hz": round(float(dominant_freq), 2),

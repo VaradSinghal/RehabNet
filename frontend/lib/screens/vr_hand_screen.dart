@@ -55,6 +55,7 @@ class _VrHandScreenState extends State<VrHandScreen>
 
   // ── Game state ──────────────────────────────────────────────────────
   late Timer _timer;
+  bool _showInstructions = true;
   bool _running = false;
   bool _showSummary = false;
 
@@ -77,7 +78,7 @@ class _VrHandScreenState extends State<VrHandScreen>
   @override
   void initState() {
     super.initState();
-    _startGame();
+    // Game starts when user taps the "Start" button on the instruction overlay
   }
 
   void _startGame() {
@@ -284,6 +285,85 @@ class _VrHandScreenState extends State<VrHandScreen>
                 ),
               ),
             ),
+
+            // ── Instruction Overlay (Elderly Friendly) ────────────────────────
+            if (_showInstructions)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.85),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF131929),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                              color: const Color(0xFF4FC3F7).withValues(alpha: 0.5),
+                              width: 2),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.view_in_ar_rounded,
+                                size: 56, color: Color(0xFF4FC3F7)),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'How to Play',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  fontFamily: 'Inter'),
+                            ),
+                            const SizedBox(height: 16),
+                            const _InstructionRow(
+                                icon: Icons.pan_tool_rounded,
+                                text:
+                                    'Drag your finger on the screen to move the hand icon.'),
+                            const SizedBox(height: 12),
+                            const _InstructionRow(
+                                icon: Icons.ads_click_rounded,
+                                text:
+                                    'Catch the blue targets that approach you from the distance.'),
+                            const SizedBox(height: 12),
+                            const _InstructionRow(
+                                icon: Icons.directions_walk_rounded,
+                                text:
+                                    'In "Walk" mode, targets appear in lanes to simulate stepping.'),
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _showInstructions = false;
+                                  });
+                                  _startGame();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4FC3F7),
+                                  foregroundColor: Colors.black,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
+                                ),
+                                child: const Text('Start Exercise',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                        fontFamily: 'Inter')),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -530,6 +610,33 @@ class _VrHandScreenState extends State<VrHandScreen>
 }
 
 // ── Supporting widgets ────────────────────────────────────────────────────────
+
+class _InstructionRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _InstructionRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: const Color(0xFF4FC3F7), size: 24),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+                color: Color(0xFFCDD6E8),
+                fontSize: 14,
+                fontFamily: 'Inter',
+                height: 1.4),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class _SummaryCard extends StatelessWidget {
   final String label;

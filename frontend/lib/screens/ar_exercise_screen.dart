@@ -48,6 +48,8 @@ class _ArExerciseScreenState extends State<ArExerciseScreen>
   Offset? _rightHandScreen;
 
   // ── Exercise state ──────────────────────────────────────────────────
+  bool _isProcessing = false;
+  bool _showInstructions = true;
   String _activeExercise = 'target_touch';
   final math.Random _rng = math.Random();
   int _hits = 0;
@@ -450,13 +452,13 @@ class _ArExerciseScreenState extends State<ArExerciseScreen>
       _feedbackPositive = true;
       switch (ex.id) {
         case 'target_touch':
-          _feedback = 'Move your hand to the green target!';
+          _feedback = 'Move your HAND to touch the green target shown on screen.';
           break;
         case 'guided_path':
-          _feedback = 'Follow the path with your hand';
+          _feedback = 'Follow the curved path carefully with your wrist.';
           break;
         case 'arm_raise':
-          _feedback = 'Raise your right arm above your shoulder';
+          _feedback = 'Stand back. Raise your arm high above your shoulder, then lower it.';
           break;
       }
     });
@@ -648,14 +650,93 @@ class _ArExerciseScreenState extends State<ArExerciseScreen>
             child: _TrackingChip(detected: _poseDetected),
           ),
 
-          // ── Feedback ────────────────────────────────────────────
-          Positioned(
-            bottom: 24, left: 16, right: 16,
-            child: FeedbackBanner(
-              message: _feedback,
-              isPositive: _feedbackPositive,
+          // ── Instruction Overlay (Elderly Friendly) ────────────────────────
+          if (_showInstructions)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.85),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF131929),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                            color: const Color(0xFF00C896).withValues(alpha: 0.5),
+                            width: 2),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.camera_front_rounded,
+                              size: 56, color: Color(0xFF00C896)),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'How to Play',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Inter'),
+                          ),
+                          const SizedBox(height: 16),
+                          const _InstructionRow(
+                              icon: Icons.back_hand_rounded,
+                              text:
+                                  'Prop your phone up. Stand back so camera sees your shoulders & hands.'),
+                          const SizedBox(height: 12),
+                          const _InstructionRow(
+                              icon: Icons.center_focus_strong_rounded,
+                              text:
+                                  'The app tracks your REAL hand movement. Do not touch the screen.'),
+                          const SizedBox(height: 12),
+                          const _InstructionRow(
+                              icon: Icons.check_circle_rounded,
+                              text:
+                                  'Move your hands in the air to reach the targets shown on screen.'),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _showInstructions = false;
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF00C896),
+                                foregroundColor: Colors.black,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Text('I Understand, Start!',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Inter')),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
+
+          // ── Feedback ────────────────────────────────────────────
+          if (!_showInstructions)
+            Positioned(
+              bottom: 24, left: 16, right: 16,
+              child: FeedbackBanner(
+                message: _feedback,
+                isPositive: _feedbackPositive,
+              ),
+            ),
         ],
       ),
     );
@@ -1100,4 +1181,27 @@ class _PathPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_PathPainter old) => old.progress != progress;
+}
+
+class _InstructionRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _InstructionRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: const Color(0xFF4FC3F7), size: 24),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Color(0xFFCDD6E8), fontSize: 14, fontFamily: 'Inter', height: 1.4),
+          ),
+        ),
+      ],
+    );
+  }
 }

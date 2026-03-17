@@ -39,12 +39,16 @@ app.include_router(progress.router)
 @app.websocket("/ws/live")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
+    logger.info(f"[WS] Client connected. Total: {len(manager.active_connections)}")
     try:
         while True:
-            # Keep alive and wait for client to close
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+        logger.info(f"[WS] Client disconnected. Total: {len(manager.active_connections)}")
+    except Exception as e:
+        manager.disconnect(websocket)
+        logger.info(f"[WS] Client error: {e}. Total: {len(manager.active_connections)}")
 
 @app.on_event("startup")
 def startup_event():

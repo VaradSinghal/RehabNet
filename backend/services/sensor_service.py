@@ -7,12 +7,14 @@ from ai.tremor_detector import TremorDetector
 # to avoid managing long-lived objects in memory.
 _active_detectors = {}
 
+from fastapi import BackgroundTasks
+
 def get_tremor_detector(user_id: int) -> TremorDetector:
     if user_id not in _active_detectors:
         _active_detectors[user_id] = TremorDetector()
     return _active_detectors[user_id]
 
-def process_sensor_data(db: Session, data: schemas.SensorData) -> schemas.SensorResponse:
+def process_sensor_data(db: Session, data: schemas.SensorData, background_tasks: BackgroundTasks) -> schemas.SensorResponse:
     detector = get_tremor_detector(data.user_id)
     
     # Process FFT
@@ -20,8 +22,6 @@ def process_sensor_data(db: Session, data: schemas.SensorData) -> schemas.Sensor
     
     # If the window triggered a full analysis, and a session is active, log it.
     if result["severity"] != "Collecting Data...":
-        # Broadcast via WebSocket (Async/non-blocking)
-        import asyncio
         from services.websocket_manager import manager
         
         payload = {
@@ -33,9 +33,9 @@ def process_sensor_data(db: Session, data: schemas.SensorData) -> schemas.Sensor
                 "amplitude": result["amplitude_g"]
             }
         }
-        # In FastAPI, you should typically use BackgroundTasks for this, 
-        # but for real-time we can use create_task if we are careful.
-        asyncio.create_task(manager.broadcast(payload))
+        
+        # Safely offload the async websocket broadcast to FastAPI's background thread
+        background_tasks.add_task(manager.broadcast, payload)
 
         if data.session_id:
             db_score = db_models.TremorScore(

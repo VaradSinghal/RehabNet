@@ -2,19 +2,13 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-// -----------------------------------------------------------------------------
-// CONFIGURATION: UPDATE THESE VALUES!
-// -----------------------------------------------------------------------------
-const char* ssid = "YOUR_WIFI_SSID";          // Replace with your WiFi name
-const char* password = "YOUR_WIFI_PASSWORD";  // Replace with your WiFi password
+const char* ssid = "Allah-huakbar";          // Replace with your WiFi name
+const char* password = "varad1526";  // Replace with your WiFi password
 
 // Replace with the IP address of the computer running your Python Flask backend
 // Ensure the ESP32 and the computer are on the exact same WiFi network!
-const char* serverUrl = "http://192.168.X.X:5000/api/sensor/data";
+const char* serverUrl = "http://192.168.1.10:5000/sensor-data/";
 
-// How often to read and send data (in milliseconds)
-// The Python TremorAnalyzer expects roughly 10Hz to 50Hz for good FFT resolution.
-// 20ms = 50Hz sampling rate.
 const int samplingDelayMs = 20; 
 
 // -----------------------------------------------------------------------------
@@ -36,6 +30,7 @@ void setup() {
   // 1. Connect to WiFi
   Serial.print("Connecting to WiFi: ");
   Serial.println(ssid);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -134,11 +129,13 @@ void sendDataToBackend(float x, float y, float z) {
     http.begin(serverUrl);
     http.addHeader("Content-Type", "application/json");
 
-    // Construct the JSON payload required by the backend
-    // Format: {"accelerometer_x": 0.05, "accelerometer_y": 0.01, "accelerometer_z": 0.98}
-    String jsonPayload = "{\"accelerometer_x\": " + String(x, 4) + 
-                         ", \"accelerometer_y\": " + String(y, 4) + 
-                         ", \"accelerometer_z\": " + String(z, 4) + "}";
+    // Construct the JSON payload required by the FastAPI backend
+    // Format: {"user_id": 1, "ax": 0.05, "ay": 0.01, "az": 0.98, "timestamp": 1234}
+    String jsonPayload = "{\"user_id\": 1" +
+                         ", \"timestamp\": " + String(millis()) +
+                         ", \"ax\": " + String(x, 4) + 
+                         ", \"ay\": " + String(y, 4) + 
+                         ", \"az\": " + String(z, 4) + "}";
 
     // Send POST request
     int httpResponseCode = http.POST(jsonPayload);

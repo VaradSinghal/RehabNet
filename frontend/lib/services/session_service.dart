@@ -1,12 +1,9 @@
-/// Session service — ChangeNotifier that holds all live session metrics.
-/// Feeds from SocketService streams so the UI refreshes automatically.
-
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'socket_service.dart';
+import 'api_websocket_service.dart';
 
 class SessionService extends ChangeNotifier {
-  final SocketService _socket = SocketService();
+  final ApiWebSocketService _apiWebSocket = ApiWebSocketService();
 
   // ── Tremor ──────────────────────────────────────────────────────────
   double tremorIntensity   = 0.0;
@@ -24,47 +21,78 @@ class SessionService extends ChangeNotifier {
   double avgAccuracy       = 0.0;
   double durationSec       = 0.0;
   bool   sessionActive     = false;
-
-  // ── Subscriptions ────────────────────────────────────────────────────
-  late final StreamSubscription _tremorSub;
-  late final StreamSubscription _metricsSub;
+  Timer? _sessionTimer;
 
   SessionService() {
-    _tremorSub = _socket.tremorStream.listen(_onTremor);
-    _metricsSub = _socket.metricsStream.listen(_onMetrics);
+    _apiWebSocket.initialize();
+    _apiWebSocket.tremorDataStream.addListener(_onTremorUpdate);
   }
 
-  void _onTremor(Map<String, dynamic> d) {
-    tremorIntensity = (d['tremor_intensity'] as num?)?.toDouble() ?? 0.0;
-    tremorFreqHz    = (d['tremor_freq_hz']   as num?)?.toDouble() ?? 0.0;
-    tremorScore     = (d['severity_score']   as num?)?.toDouble() ?? 0.0;
-    tremorLabel     = d['severity_label'] as String? ?? 'Low';
+  void _onTremorUpdate() {
+    final d = _apiWebSocket.tremorDataStream.value;
+    if (d == null) return;
+
+    tremorFreqHz    = (d['frequency_hz']     as num?)?.toDouble() ?? 0.0;
+    tremorScore     = (d['amplitude']        as num?)?.toDouble() ?? 0.0;
+    tremorLabel     = d['severity']          as String? ?? 'Low';
+    
+    // Fallbacks if not provided in the new websocket payload
     accelX          = (d['accelerometer_x']  as num?)?.toDouble() ?? 0.0;
     accelY          = (d['accelerometer_y']  as num?)?.toDouble() ?? 0.0;
     accelZ          = (d['accelerometer_z']  as num?)?.toDouble() ?? 0.0;
 
     tremorHistory.add({
       't': tremorHistory.length.toDouble(),
-      'intensity': tremorIntensity,
+      'intensity': tremorScore,
       'score': tremorScore,
     });
+    
     if (tremorHistory.length > 60) tremorHistory.removeAt(0);
 
     notifyListeners();
   }
 
-  void _onMetrics(Map<String, dynamic> d) {
-    reps          = (d['reps']              as num?)?.toInt()    ?? reps;
-    avgAccuracy   = (d['avg_accuracy_pct']  as num?)?.toDouble() ?? avgAccuracy;
-    durationSec   = (d['duration_s']        as num?)?.toDouble() ?? durationSec;
-    sessionActive = d['session_active']     as bool?             ?? sessionActive;
+  void updateMetrics({int? newReps, double? newAccuracy, bool? isActive}) {
+    if (newReps != null) reps = newReps;
+    if (newAccuracy != null) avgAccuracy = newAccuracy;
+    if (isActive != null) sessionActive = isActive;
+    notifyListeners();
+  }
+
+  Future<void> startSession(int userId) async {
+    sessionActive = true;
+    reps = 0;
+    avgAccuracy = 0.0;
+    durationSec = 0.0;
+    tremorHistory.clear();
+    
+    _sessionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      durationSec++;
+      notifyListeners();
+    });
+
+    await _apiWebSocket.api.startSession(userId);
+    notifyListeners();
+  }
+
+  Future<void> endSession() async {
+    sessionActive = false;
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
+
+    await _apiWebSocket.api.endSession(
+        exerciseCount: reps,
+        avgAccuracy: avgAccuracy,
+        avgTremorScore: tremorScore,
+    );
     notifyListeners();
   }
 
   @override
   void dispose() {
-    _tremorSub.cancel();
-    _metricsSub.cancel();
+    _apiWebSocket.tremorDataStream.removeListener(_onTremorUpdate);
+    _apiWebSocket.disconnect();
+    _sessionTimer?.cancel();
     super.dispose();
   }
 }

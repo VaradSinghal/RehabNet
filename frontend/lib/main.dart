@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'services/socket_service.dart';
 import 'services/session_service.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/ar_exercise_screen.dart';
@@ -20,9 +19,8 @@ void main() async {
     statusBarBrightness: Brightness.dark,
   ));
 
-  // Start SocketIO connection
-  SocketService().connect();
-
+  // ApiWebSocketService connects automatically when SessionService instantiates
+  
   runApp(
     ChangeNotifierProvider(
       create: (_) => SessionService(),

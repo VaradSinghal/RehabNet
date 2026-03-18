@@ -100,4 +100,30 @@ class ApiService {
     }
     return null;
   }
+
+  /// Send gait (ankle trajectory) data to the GaitAnalyzer AI module.
+  Future<Map<String, dynamic>?> sendGaitData({
+    required int userId,
+    required List<double> ankleYTrajectory,
+    int timeDeltaMs = 0,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/gait-data/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_id': userId,
+          'ankle_y_trajectory': ankleYTrajectory,
+          'time_delta_ms': timeDeltaMs,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+    } catch (e) {
+      debugPrint('[ApiService] Error sending gait data: $e');
+    }
+    return null;
+  }
 }

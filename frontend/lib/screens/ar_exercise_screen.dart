@@ -436,8 +436,26 @@ class _ArExerciseScreenState extends State<ArExerciseScreen>
       });
     });
     try {
-      await _api.sendPoseData(
+      final result = await _api.sendPoseData(
           userId: 1, landmarks: lmJson, exercise: _activeExercise);
+
+      // Use the AI classification & feedback from the backend
+      if (result != null && mounted) {
+        final classification = result['classification'] as String? ?? '';
+        final aiFeedback = result['feedback'] as String? ?? '';
+        final aiAccuracy = (result['accuracy_pct'] as num?)?.toDouble() ?? 0.0;
+
+        if (classification.isNotEmpty && aiFeedback.isNotEmpty) {
+          setState(() {
+            _feedback = '🤖 $aiFeedback';
+            _feedbackPositive = classification == 'Correct';
+          });
+          // Update session accuracy from AI when classification is positive
+          if (classification == 'Correct' && aiAccuracy > 0) {
+            context.read<SessionService>().updateMetrics(newAccuracy: aiAccuracy);
+          }
+        }
+      }
     } catch (_) {}
   }
 

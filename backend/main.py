@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base, SessionLocal
-from routes import pose, sensor, session, progress
+from routes import pose, sensor, session, progress, gait
 from models import db_models
 from services.websocket_manager import manager
 
@@ -35,6 +35,7 @@ app.include_router(pose.router)
 app.include_router(sensor.router)
 app.include_router(session.router)
 app.include_router(progress.router)
+app.include_router(gait.router)
 
 @app.websocket("/ws/live")
 async def websocket_endpoint(websocket: WebSocket):

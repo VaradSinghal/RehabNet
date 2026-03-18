@@ -14,6 +14,10 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:provider/provider.dart';
+import '../services/session_service.dart';
+import '../services/api_service.dart';
+import '../services/api_websocket_service.dart';
 
 class VrHandScreen extends StatefulWidget {
   const VrHandScreen({super.key});
@@ -109,6 +113,17 @@ class _VrHandScreenState extends State<VrHandScreen>
     _countdownTimer?.cancel();
     _metronomeTimer?.cancel();
     setState(() { _showSummary = true; });
+
+    // Report VR session metrics to the backend
+    try {
+      final accuracy = (_score + _missed) > 0
+          ? (_score / (_score + _missed) * 100.0)
+          : 0.0;
+      context.read<SessionService>().updateMetrics(
+        newReps: _score,
+        newAccuracy: accuracy,
+      );
+    } catch (_) {}
   }
 
   void _startMetronome() {
@@ -164,6 +179,8 @@ class _VrHandScreenState extends State<VrHandScreen>
           if (distSq < _hitRadius) {
             _score++;
             _targets.removeAt(i);
+            // Report hit to SessionService for live dashboard updates
+            try { context.read<SessionService>().addRep(accuracy: 100.0); } catch (_) {}
             continue;
           }
         }

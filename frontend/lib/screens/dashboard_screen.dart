@@ -456,6 +456,8 @@ class _TremorChart extends StatelessWidget {
             topTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
+          minY: 0,
+          maxY: 100,
           borderData: FlBorderData(show: false),
           lineBarsData: [
             LineChartBarData(

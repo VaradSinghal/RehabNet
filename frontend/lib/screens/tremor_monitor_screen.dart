@@ -75,27 +75,37 @@ class TremorMonitorScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // â”€â”€ Live chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            const Text('Accelerometer Data',
-                style: TextStyle(color: Color(0xFFCDD6E8), fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+            // Live Accelerometer Chart
+            const Text('Live Accelerometer (X, Y, Z)',
+                style: TextStyle(color: Color(0xFFCDD6E8), fontSize: 13, fontWeight: FontWeight.w700, fontFamily: 'Inter')),
             const SizedBox(height: 10),
             _AccelChart(history: ss.tremorHistory),
 
             const SizedBox(height: 24),
 
-            // â”€â”€ Legend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Tremor Intensity Chart
+            const Text('Tremor Intensity History',
+                style: TextStyle(color: Color(0xFFCDD6E8), fontSize: 13, fontWeight: FontWeight.w700, fontFamily: 'Inter')),
+            const SizedBox(height: 10),
+            _IntensityChart(history: ss.tremorHistory),
+
+            const SizedBox(height: 24),
+
+            // Legend
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                _LegendDot(color: Color(0xFF4FC3F7), label: 'Intensity'),
-                SizedBox(width: 20),
-                _LegendDot(color: Color(0xFF00C896), label: 'Score'),
+                _LegendDot(color: Color(0xFFFF5252), label: 'X'),
+                SizedBox(width: 12),
+                _LegendDot(color: Color(0xFF00C896), label: 'Y'),
+                SizedBox(width: 12),
+                _LegendDot(color: Color(0xFF4FC3F7), label: 'Z'),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            // â”€â”€ Threshold info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+            // Threshold info
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -105,9 +115,9 @@ class TremorMonitorScreen extends StatelessWidget {
               ),
               child: const Column(
                 children: [
-                  _ThresholdRow('Low',       '< 30',    Color(0xFF00C896)),
-                  _ThresholdRow('Moderate',  '30 â€“ 65', Color(0xFFFFAB40)),
-                  _ThresholdRow('High',      '> 65',    Color(0xFFFF5252)),
+                   _ThresholdRow('Low',       '< 30',    Color(0xFF00C896)),
+                   _ThresholdRow('Moderate',  '30 – 65', Color(0xFFFFAB40)),
+                   _ThresholdRow('High',      '> 65',    Color(0xFFFF5252)),
                 ],
               ),
             ),
@@ -170,24 +180,26 @@ class _AccelChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (history.isEmpty) {
       return Container(
-        height: 180,
+        height: 150,
         decoration: BoxDecoration(color: const Color(0xFF131929), borderRadius: BorderRadius.circular(16)),
         alignment: Alignment.center,
         child: const Text('Waiting for sensor data...', style: TextStyle(color: Color(0xFF8892A4), fontFamily: 'Inter')),
       );
     }
 
-    List<FlSpot> intensitySpots = [];
-    List<FlSpot> scoreSpots     = [];
+    List<FlSpot> xSpots = [];
+    List<FlSpot> ySpots = [];
+    List<FlSpot> zSpots = [];
 
     for (int i = 0; i < history.length; i++) {
-      final d = history[i];
-      intensitySpots.add(FlSpot(i.toDouble(), (d['intensity'] as num?)?.toDouble() ?? 0));
-      scoreSpots    .add(FlSpot(i.toDouble(), (d['score']     as num?)?.toDouble() ?? 0));
+        final d = history[i];
+        xSpots.add(FlSpot(i.toDouble(), (d['ax'] as num?)?.toDouble() ?? 0));
+        ySpots.add(FlSpot(i.toDouble(), (d['ay'] as num?)?.toDouble() ?? 0));
+        zSpots.add(FlSpot(i.toDouble(), (d['az'] as num?)?.toDouble() ?? 0));
     }
 
     return Container(
-      height: 180,
+      height: 150,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFF131929),
@@ -195,6 +207,7 @@ class _AccelChart extends StatelessWidget {
         border: Border.all(color: const Color(0xFF1E2840)),
       ),
       child: LineChart(LineChartData(
+        minY: -2, maxY: 2, // Gravity varies, but raw spikes usually stay in this range
         gridData: FlGridData(
           show: true,
           getDrawingHorizontalLine: (_) => const FlLine(color: Color(0xFF1E2840), strokeWidth: 1),
@@ -208,8 +221,9 @@ class _AccelChart extends StatelessWidget {
         ),
         borderData: FlBorderData(show: false),
         lineBarsData: [
-          _line(intensitySpots, const Color(0xFF4FC3F7)),
-          _line(scoreSpots,     const Color(0xFF00C896)),
+          _line(xSpots, const Color(0xFFFF5252)),
+          _line(ySpots, const Color(0xFF00C896)),
+          _line(zSpots, const Color(0xFF4FC3F7)),
         ],
       )),
     );
@@ -219,10 +233,54 @@ class _AccelChart extends StatelessWidget {
     spots: spots,
     isCurved: true,
     color: color,
-    barWidth: 2,
+    barWidth: 1.5,
     dotData: const FlDotData(show: false),
-    belowBarData: BarAreaData(show: true, color: color.withValues(alpha: 0.07)),
   );
+}
+
+class _IntensityChart extends StatelessWidget {
+  final List<Map<String, dynamic>> history;
+  const _IntensityChart({required this.history});
+
+  @override
+  Widget build(BuildContext context) {
+    if (history.isEmpty) return const SizedBox(height: 100);
+
+    final spots = history.asMap().entries.map((e) => 
+      FlSpot(e.key.toDouble(), (e.value['intensity'] as num?)?.toDouble() ?? 0)
+    ).toList();
+
+    return Container(
+      height: 100,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF131929),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1E2840)),
+      ),
+      child: LineChart(LineChartData(
+        minY: 0, maxY: 100,
+        gridData: const FlGridData(show: false),
+        titlesData: const FlTitlesData(
+          leftTitles:   AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:  AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(show: false),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            color: const Color(0xFFFFAB40),
+            barWidth: 3,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(show: true, color: const Color(0xFFFFAB40).withValues(alpha: 0.1)),
+          ),
+        ],
+      )),
+    );
+  }
 }
 
 // â”€â”€ Legend dot â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

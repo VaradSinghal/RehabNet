@@ -68,6 +68,9 @@ class SessionService extends ChangeNotifier {
       't': tremorHistory.length.toDouble(),
       'intensity': tremorScore,
       'score': tremorScore,
+      'ax': accelX,
+      'ay': accelY,
+      'az': accelZ,
     });
     if (tremorHistory.length > 60) tremorHistory.removeAt(0);
 

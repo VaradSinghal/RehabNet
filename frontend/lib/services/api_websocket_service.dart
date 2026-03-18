@@ -17,7 +17,7 @@ class ApiWebSocketService {
   // ── Configuration ────────────────────────────────────────────────────
   // Change this to your computer's local IP when running the FastAPI backend.
   // Run `ipconfig` (Windows) or `ifconfig` (macOS/Linux) to find it.
-  static const String defaultHost = '192.168.1.10';
+  static const String defaultHost = '10.177.173.46';
   static const int defaultPort = 5000;
 
   String _host = defaultHost;

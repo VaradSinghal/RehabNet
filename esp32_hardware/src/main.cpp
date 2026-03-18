@@ -7,7 +7,7 @@ const char* password = "varad1526";  // Replace with your WiFi password
 
 // Replace with the IP address of the computer running your Python Flask backend
 // Ensure the ESP32 and the computer are on the exact same WiFi network!
-const char* serverUrl = "http://192.168.1.10:5000/sensor-data/";
+const char* serverUrl = "http://10.177.173.46:5000/sensor-data/";
 
 const int samplingDelayMs = 20; 
 
@@ -142,8 +142,8 @@ void sendDataToBackend(float x, float y, float z) {
 
     if (httpResponseCode > 0) {
       // Success (HTTP 200)
-      // Serial.print("HTTP Code: ");
-      // Serial.println(httpResponseCode);
+      Serial.print("HTTP Code: ");
+      Serial.println(httpResponseCode);
     } else {
       Serial.print("Error communicating with backend: ");
       Serial.println(httpResponseCode);
